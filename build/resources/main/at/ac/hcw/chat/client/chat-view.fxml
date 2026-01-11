@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.chat.client.ChatController">
+    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label fx:id="welcomeLabel" text="Chatting as: User" style="-fx-font-weight: bold;" />
+        <Region HBox.hgrow="ALWAYS" /> <!-- Push disconnect button to the right -->
+        <Button fx:id="disconnectButton" text="Disconnect" onAction="#onDisconnectButtonClick"
+                style="-fx-background-color: #f44336; -fx-text-fill: white;" />
+    </HBox>
+
+    <!-- Chat Area -->
+    <TextArea fx:id="chatArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true" />
+
+    <!-- Message Input -->
+    <HBox spacing="10">
+        <TextField fx:id="messageField" HBox.hgrow="ALWAYS" promptText="Type a message..." onAction="#onSendButtonClick" />
+        <Button fx:id="sendButton" text="Send" onAction="#onSendButtonClick" prefWidth="80" />
+    </HBox>
+</VBox>

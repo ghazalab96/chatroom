@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20" alignment="CENTER" style="-fx-background-color: #F4F7F9; -fx-background-radius: 20;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.chat.client.ChatController">
+    <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
+
+    <Label text="HCW Chat Room" textFill="#546E7A">
+        <font><Font name="System Bold" size="22.0"/></font>
+    </Label>
+
+    <VBox spacing="10" maxWidth="250">
+        <Label text="Server IP" textFill="#78909C" />
+        <TextField fx:id="ipField" text="127.0.0.1" style="-fx-background-radius: 15; -fx-padding: 8; -fx-border-color: #CFD8DC; -fx-border-radius: 15; -fx-background-insets: 0;"/>
+
+        <Label text="Port" textFill="#78909C" />
+        <TextField fx:id="portField" text="12345" style="-fx-background-radius: 15; -fx-padding: 8; -fx-border-color: #CFD8DC; -fx-border-radius: 15; -fx-background-insets: 0;"/>
+
+        <Label text="Your Name" textFill="#78909C" />
+        <TextField fx:id="nameField" promptText="Enter name" style="-fx-background-radius: 15; -fx-padding: 8; -fx-border-color: #CFD8DC; -fx-border-radius: 15; -fx-background-insets: 0;"/>
+    </VBox>
+
+    <Button fx:id="connectButton" text="Connect" onAction="#onConnectButtonClick"
+            prefWidth="250" prefHeight="40"
+            style="-fx-background-color: #78909C; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+    <Label fx:id="statusLabel" text="Ready" textFill="#90A4AE" />
+</VBox>

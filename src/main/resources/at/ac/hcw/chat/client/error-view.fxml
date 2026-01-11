@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15" alignment="CENTER" style="-fx-background-color: #FFF5F5; -fx-background-radius: 20; -fx-border-color: #FFCDD2; -fx-border-radius: 20;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.chat.client.ChatController">
+    <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+
+    <Label text="⚠️ Connection Lost" textFill="#E57373">
+        <font><Font name="System Bold" size="18.0"/></font>
+    </Label>
+
+    <Label text="The server has disconnected." textFill="#795548" />
+
+    <Button text="Back to Login" onAction="#onDisconnectButtonClick"
+            prefWidth="140" style="-fx-background-color: #78909C; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;" />
+</VBox>

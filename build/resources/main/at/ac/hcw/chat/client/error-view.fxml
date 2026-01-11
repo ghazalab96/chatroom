@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.chat.client.ChatController">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label text="⚠️ Connection Lost" textFill="#f44336">
+        <font><Font name="System Bold" size="18.0"/></font>
+    </Label>
+
+    <Label text="The server went down or is unreachable." textAlignment="CENTER" wrapText="true" />
+
+    <Button text="Return to Login" onAction="#onDisconnectButtonClick"
+            prefWidth="150" style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
+</VBox>
