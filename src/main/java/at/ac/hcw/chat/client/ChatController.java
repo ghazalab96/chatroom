@@ -101,7 +101,6 @@ public class ChatController {
             }
         });
     }
-
     private void handleMessageRouting(String msg) {
         if (activeController == null) return;
 
@@ -109,6 +108,19 @@ public class ChatController {
             String[] users = msg.substring(9).split(",");
             activeController.userListView.getItems().clear();
             for (String u : users) if (!u.isEmpty()) activeController.userListView.getItems().add(u);
+        }
+        // ۱. مدیریت پیام‌های خطای خصوصی (جدید)
+        else if (msg.startsWith("[Private Error ")) {
+            String target = msg.substring(15, msg.indexOf("]:"));
+            Platform.runLater(() -> {
+                TextArea log = privateChatLog.get(target);
+                if (log != null) {
+                    log.appendText(getTimestamp() + msg + "\n");
+                } else {
+                    // اگر تبی باز نبود، در جنرال نشان بده
+                    activeController.chatArea.appendText(getTimestamp() + msg + "\n");
+                }
+            });
         }
         else if (msg.startsWith("[Private from ")) {
             String sender = msg.substring(14, msg.indexOf("]:"));
@@ -125,9 +137,13 @@ public class ChatController {
         else if (msg.startsWith("[Private to ")) {
             String target = msg.substring(12, msg.indexOf("]:"));
             openPrivateTab(target, false);
-            Platform.runLater(() -> privateChatLog.get(target).appendText(getTimestamp() + msg + "\n"));
+            Platform.runLater(() -> {
+                TextArea log = privateChatLog.get(target);
+                if (log != null) log.appendText(getTimestamp() + msg + "\n");
+            });
         }
         else {
+            // پیام‌های عمومی و سیستم (مثل Left the chat)
             if (activeController.chatArea != null) {
                 activeController.chatArea.appendText(getTimestamp() + msg + "\n");
                 Tab generalTab = activeController.chatTabPane.getTabs().get(0);
@@ -137,6 +153,7 @@ public class ChatController {
             }
         }
     }
+
 
     @FXML
     protected void onSendButtonClick() {

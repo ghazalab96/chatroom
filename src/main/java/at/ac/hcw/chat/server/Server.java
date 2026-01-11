@@ -112,13 +112,12 @@ public class Server {
 
                 PrintWriter targetWriter = clientMap.get(targetName);
                 if (targetWriter != null) {
-                    // Log the private message in server console
                     System.out.println("[Private] " + clientName + " to " + targetName + ": " + messageContent);
-
                     targetWriter.println("[Private from " + clientName + "]: " + messageContent);
                     out.println("[Private to " + targetName + "]: " + messageContent);
                 } else {
-                    out.println("[System]: User '" + targetName + "' not found.");
+                  // write the error message for client
+                    out.println("[Private Error " + targetName + "]: User not found or offline.");
                 }
             } catch (Exception e) {
                 out.println("[System]: Invalid private message format.");
