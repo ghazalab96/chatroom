@@ -6,234 +6,235 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
- * Main Controller for the Chat Application.
- * Package: at.ac.hcw.chat.client
+ * Controller with Silent Private Tab creation and Red Dot notifications.
  */
 public class ChatController {
-    // UI Elements for Login Window
-    @FXML private TextField ipField, portField, nameField;
-    @FXML private Label statusLabel;
-
-    // UI Elements for Chat Window
+    @FXML private TextField ipField, portField, nameField, messageField;
+    @FXML private Label statusLabel, welcomeLabel;
     @FXML private TextArea chatArea;
-    @FXML private TextField messageField;
-    @FXML private Label welcomeLabel;
     @FXML private ListView<String> userListView;
+    @FXML private TabPane chatTabPane;
 
-    // Networking Static Variables (Static to survive scene changes)
     private static Socket socket;
     private static PrintWriter out;
     private static BufferedReader in;
     private static String userName;
     private static volatile boolean isRunning = false;
-
-    // Static reference to the currently active controller (for UI updates from the background thread)
     private static ChatController activeController;
+
+    private static final Map<String, TextArea> privateChatLog = new HashMap<>();
+    private static final Map<String, Tab> tabMap = new HashMap<>();
 
     @FXML
     public void initialize() {
-        // Set this instance as the active controller whenever an FXML is loaded
         activeController = this;
 
-        // Auto-whisper: When a name in the list is clicked, prepare a private message
+        // Double-click to open and JUMP to private chat
         if (userListView != null) {
             userListView.setOnMouseClicked(event -> {
-                String selectedUser = userListView.getSelectionModel().getSelectedItem();
-                if (selectedUser != null && !selectedUser.equals(userName)) {
-                    messageField.setText("@" + selectedUser + ": ");
-                    messageField.requestFocus();
-                    messageField.positionCaret(messageField.getText().length());
+                if (event.getClickCount() == 2) {
+                    String selectedUser = userListView.getSelectionModel().getSelectedItem();
+                    if (selectedUser != null && !selectedUser.equals(userName)) {
+                        openPrivateTab(selectedUser, true); // true = switch to this tab
+                    }
                 }
+            });
+        }
+
+        // Clear notification dot when user manually clicks a tab
+        if (chatTabPane != null) {
+            chatTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+                if (newTab != null) newTab.setGraphic(null);
             });
         }
     }
 
-    /**
-     * Logic for the Connect button in the Login View.
-     */
-    @FXML
-    protected void onConnectButtonClick() {
-        userName = nameField.getText().trim();
-        if (userName.isEmpty()) {
-            statusLabel.setText("Please enter your name!");
-            return;
-        }
-
-        try {
-            String ip = ipField.getText();
-            int port = Integer.parseInt(portField.getText());
-
-            // 1. Establish connection
-            socket = new Socket(ip, port);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            // 2. Protocol: Send the Username immediately as the first message
-            out.println(userName);
-
-            isRunning = true;
-
-            // 3. Start the background thread to listen for server messages
-            new Thread(this::listenToServer).start();
-
-            // 4. Switch to the main Chat Room scene
-            switchScene("/at/ac/hcw/chat/client/chat-view.fxml");
-
-        } catch (Exception e) {
-            statusLabel.setText("Connection failed: " + e.getMessage());
-        }
+    private Circle createNotificationDot() {
+        Circle dot = new Circle(5);
+        dot.setStyle("-fx-fill: #FF5252; -fx-stroke: white; -fx-stroke-width: 1;");
+        return dot;
     }
 
     /**
-     * Background thread that processes all incoming messages from the server.
+     * @param targetUser The name of the user.
+     * @param shouldFocus If true, the app will switch to this tab. If false, it stays silent.
      */
+    private void openPrivateTab(String targetUser, boolean shouldFocus) {
+        Platform.runLater(() -> {
+            if (activeController == null || activeController.chatTabPane == null) return;
+
+            Tab targetTab = tabMap.get(targetUser);
+
+            // If tab doesn't exist, create it
+            if (targetTab == null) {
+                TextArea newLog = new TextArea();
+                newLog.setEditable(false);
+                newLog.setWrapText(true);
+                newLog.setStyle("-fx-background-radius: 0 0 15 15; -fx-border-radius: 0 0 15 15;");
+
+                targetTab = new Tab(targetUser, newLog);
+                targetTab.setClosable(true);
+                targetTab.setOnClosed(e -> {
+                    privateChatLog.remove(targetUser);
+                    tabMap.remove(targetUser);
+                });
+
+                activeController.chatTabPane.getTabs().add(targetTab);
+                privateChatLog.put(targetUser, newLog);
+                tabMap.put(targetUser, targetTab);
+            }
+
+            // Only switch view if shouldFocus is true (e.g. from double-click)
+            if (shouldFocus) {
+                activeController.chatTabPane.getSelectionModel().select(targetTab);
+                targetTab.setGraphic(null);
+            }
+        });
+    }
+
+    private void handleMessageRouting(String msg) {
+        if (activeController == null) return;
+
+        if (msg.startsWith("USERLIST:")) {
+            String[] users = msg.substring(9).split(",");
+            activeController.userListView.getItems().clear();
+            for (String u : users) if (!u.isEmpty()) activeController.userListView.getItems().add(u);
+        }
+        else if (msg.startsWith("[Private from ")) {
+            String sender = msg.substring(14, msg.indexOf("]:"));
+
+            // 1. Ensure tab exists but DO NOT jump to it
+            openPrivateTab(sender, false);
+
+            Platform.runLater(() -> {
+                TextArea log = privateChatLog.get(sender);
+                if (log != null) log.appendText(getTimestamp() + msg + "\n");
+
+                // 2. Show red dot if we are NOT currently looking at that tab
+                Tab tab = tabMap.get(sender);
+                if (tab != null && !activeController.chatTabPane.getSelectionModel().getSelectedItem().equals(tab)) {
+                    tab.setGraphic(createNotificationDot());
+                }
+            });
+        }
+        else if (msg.startsWith("[Private to ")) {
+            String target = msg.substring(12, msg.indexOf("]:"));
+            openPrivateTab(target, false);
+            Platform.runLater(() -> privateChatLog.get(target).appendText(getTimestamp() + msg + "\n"));
+        }
+        else {
+            // General Chat
+            if (activeController.chatArea != null) {
+                activeController.chatArea.appendText(getTimestamp() + msg + "\n");
+                Tab generalTab = activeController.chatTabPane.getTabs().get(0);
+                if (!activeController.chatTabPane.getSelectionModel().getSelectedItem().equals(generalTab)) {
+                    generalTab.setGraphic(createNotificationDot());
+                }
+            }
+        }
+    }
+
+    @FXML
+    protected void onSendButtonClick() {
+        String msg = messageField.getText().trim();
+        if (msg.isEmpty() || out == null) return;
+
+        Tab selectedTab = chatTabPane.getSelectionModel().getSelectedItem();
+        String tabName = selectedTab.getText();
+
+        if (tabName.equals("General")) out.println(msg);
+        else out.println("@" + tabName + ": " + msg);
+
+        messageField.clear();
+    }
+
+    // --- Rest of the methods (listenToServer, getTimestamp, showErrorPopup, etc.) stay the same ---
+
+    private String getTimestamp() {
+        return "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] ";
+    }
+
     private void listenToServer() {
         try {
             String line;
-            while (isRunning) {
-                line = in.readLine();
-
-                // If server goes down, readLine returns null
-                if (line == null) {
-                    break;
-                }
-
-                // Handle protocol for updating the Online User List
-                if (line.startsWith("USERLIST:")) {
-                    String listData = line.substring(9);
-                    String[] users = listData.split(",");
-
-                    Platform.runLater(() -> {
-                        if (activeController != null && activeController.userListView != null) {
-                            activeController.userListView.getItems().clear();
-                            activeController.userListView.getItems().addAll(users);
-                        }
-                    });
-                } else {
-                    // Handle standard chat messages (Public or Private)
-                    String finalLine = line;
-                    Platform.runLater(() -> {
-                        if (activeController != null && activeController.chatArea != null) {
-                            activeController.chatArea.appendText(finalLine + "\n");
-                        }
-                    });
-                }
+            while (isRunning && (line = in.readLine()) != null) {
+                final String msg = line;
+                Platform.runLater(() -> handleMessageRouting(msg));
             }
         } catch (IOException e) {
-            // Log connection loss
-            System.out.println("Connection lost to server.");
+            // Error handling
         } finally {
-            // If the user didn't manually disconnect, show the Error Popup
-            if (isRunning) {
-                Platform.runLater(this::showErrorPopup);
-            }
+            if (isRunning) Platform.runLater(this::showErrorPopup);
         }
     }
 
-    /**
-     * Closes the Chat stage and opens the independent Error Window.
-     */
+    @FXML
+    protected void onConnectButtonClick() {
+        userName = nameField.getText().trim();
+        if (userName.isEmpty()) return;
+        try {
+            socket = new Socket(ipField.getText(), Integer.parseInt(portField.getText()));
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out.println(userName);
+            isRunning = true;
+            new Thread(this::listenToServer).start();
+            switchScene("/at/ac/hcw/chat/client/chat-view.fxml");
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
     private void showErrorPopup() {
         try {
             isRunning = false;
             if (socket != null) socket.close();
-
-            // Find and close the Chat Stage
-            if (activeController != null && activeController.chatArea != null) {
-                Stage chatStage = (Stage) activeController.chatArea.getScene().getWindow();
-                chatStage.close();
+            if (activeController != null && activeController.chatTabPane != null) {
+                ((Stage) activeController.chatTabPane.getScene().getWindow()).close();
             }
-
-            // Open the independent Error Stage
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/at/ac/hcw/chat/client/error-view.fxml"));
-            Parent root = loader.load();
             Stage errorStage = new Stage();
+            errorStage.setScene(new Scene(loader.load()));
             errorStage.setTitle("Connection Error");
-            errorStage.setScene(new Scene(root));
-            errorStage.setResizable(false);
             errorStage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
 
-    /**
-     * Sends the text from the messageField to the server.
-     */
-    @FXML
-    protected void onSendButtonClick() {
-        String msg = messageField.getText().trim();
-        if (!msg.isEmpty() && out != null) {
-            out.println(msg);
-            messageField.clear();
-        }
-    }
-
-    /**
-     * Handles Disconnect requests from either the Chat Room or the Error Window.
-     */
     @FXML
     protected void onDisconnectButtonClick() {
         isRunning = false;
         try {
             if (socket != null) socket.close();
-
-            // Determine which stage called the disconnect
-            Stage currentStage;
-            if (ipField != null) {
-                currentStage = (Stage) ipField.getScene().getWindow();
-            } else if (chatArea != null) {
-                currentStage = (Stage) chatArea.getScene().getWindow();
-            } else {
-                // Find the currently focused window (the Error popup)
-                List<Window> windows = Window.getWindows().filtered(Window::isFocused);
-                currentStage = windows.isEmpty() ? (Stage) Window.getWindows().get(0) : (Stage) windows.get(0);
-            }
-
-            // Change the current window content back to login-view
+            privateChatLog.clear();
+            tabMap.clear();
+            Stage currentStage = (Stage) (ipField != null ? ipField.getScene().getWindow() : chatTabPane.getScene().getWindow());
             switchSceneOnStage(currentStage, "/at/ac/hcw/chat/client/login-view.fxml");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
-    /**
-     * Helper method to switch FXML content on a specific Stage.
-     */
-    private void switchSceneOnStage(Stage stage, String fxmlPath) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+    private void switchSceneOnStage(Stage stage, String path) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
         Parent root = loader.load();
         stage.setScene(new Scene(root));
-
-        if (fxmlPath.contains("login")) {
-            stage.setTitle("HCW Chat - Login");
-        } else {
-            stage.setTitle("HCW Chat - Room");
-            ChatController nextController = loader.getController();
-            nextController.welcomeLabel.setText("Chatting as: " + userName);
+        if (path.contains("login")) stage.setTitle("HCW Login");
+        else {
+            stage.setTitle("HCW Room");
+            ((ChatController)loader.getController()).welcomeLabel.setText("User: " + userName);
         }
     }
 
-    /**
-     * General scene switcher for the current window.
-     */
-    private void switchScene(String fxmlPath) {
+    private void switchScene(String path) {
         try {
-            Stage stage;
-            if (ipField != null) stage = (Stage) ipField.getScene().getWindow();
-            else stage = (Stage) chatArea.getScene().getWindow();
-            switchSceneOnStage(stage, fxmlPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            Stage stage = (Stage) (ipField != null ? ipField.getScene().getWindow() : chatTabPane.getScene().getWindow());
+            switchSceneOnStage(stage, path);
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }

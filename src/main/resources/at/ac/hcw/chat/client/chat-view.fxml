@@ -1,38 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" style="-fx-background-color: #F4F7F9;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.chat.client.ChatController">
-    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+<VBox prefHeight="550.0" prefWidth="750.0" spacing="10"
+      style="-fx-background-color: #F4F7F9;"
+      stylesheets="@style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="at.ac.hcw.chat.client.ChatController">
 
-    <!-- Header Section -->
+    <padding>
+        <Insets bottom="15" left="15" right="15" top="15" />
+    </padding>
+
+    <!-- Header Area -->
     <HBox alignment="CENTER_LEFT" spacing="10">
-        <Label fx:id="welcomeLabel" text="Chat Room" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #546E7A;" />
-        <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="disconnectButton" text="Disconnect" onAction="#onDisconnectButtonClick"
-                style="-fx-background-color: #E57373; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
+        <children>
+            <Label fx:id="welcomeLabel" style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #546E7A;" text="Chat Room" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#onDisconnectButtonClick" style="-fx-background-color: #E57373; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Disconnect" />
+        </children>
     </HBox>
 
-    <!-- Middle Section: Chat Area + User List -->
     <HBox spacing="10" VBox.vgrow="ALWAYS">
-        <!-- Main Chat Area (Left) -->
-        <TextArea fx:id="chatArea" HBox.hgrow="ALWAYS" editable="false" wrapText="true"
-                  style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #CFD8DC; -fx-padding: 5;"/>
+        <children>
+            <!-- TabPane with CSS Styling -->
+            <TabPane fx:id="chatTabPane" tabClosingPolicy="ALL_TABS" HBox.hgrow="ALWAYS">
+                <tabs>
+                    <Tab closable="false" text="General">
+                        <content>
+                            <TextArea fx:id="chatArea" editable="false" wrapText="true" />
+                        </content>
+                    </Tab>
+                </tabs>
+            </TabPane>
 
-        <!-- Online Users Sidebar (Right) -->
-        <VBox spacing="5" prefWidth="150" minWidth="100">
-            <Label text="Online Users" style="-fx-font-size: 12; -fx-text-fill: #90A4AE; -fx-font-weight: bold;"/>
-            <ListView fx:id="userListView" VBox.vgrow="ALWAYS"
-                      style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #CFD8DC; -fx-background-color: white;"/>
-        </VBox>
+            <!-- Sidebar: Online User List -->
+            <VBox prefWidth="170.0" spacing="8">
+                <children>
+                    <Label style="-fx-font-size: 12; -fx-text-fill: #90A4AE; -fx-font-weight: bold;" text="Online Users" />
+                    <ListView fx:id="userListView" style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #CFD8DC;" VBox.vgrow="ALWAYS" />
+                </children>
+            </VBox>
+        </children>
     </HBox>
 
-    <!-- Bottom Section: Message Input -->
-    <HBox spacing="10" alignment="CENTER">
-        <TextField fx:id="messageField" HBox.hgrow="ALWAYS" promptText="Type @Name: to whisper..." onAction="#onSendButtonClick"
-                   style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 10; -fx-border-color: #CFD8DC;"/>
-        <Button fx:id="sendButton" text="Send" onAction="#onSendButtonClick" prefHeight="40" prefWidth="80"
-                style="-fx-background-color: #78909C; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;"/>
+    <!-- Bottom: Input Field and Send Button -->
+    <HBox alignment="CENTER" spacing="10">
+        <children>
+            <TextField fx:id="messageField" onAction="#onSendButtonClick" promptText="Type a message..."
+                       style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 10; -fx-border-color: #CFD8DC;" HBox.hgrow="ALWAYS" />
+            <Button fx:id="sendButton" onAction="#onSendButtonClick" prefHeight="42.0" prefWidth="90.0"
+                    style="-fx-background-color: #78909C; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;" text="Send" />
+        </children>
     </HBox>
 </VBox>
