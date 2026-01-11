@@ -1,56 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+    The FXML file defines the User Interface (UI) structure using an XML-based language.
+    Imports allow us to use specific JavaFX UI components like Buttons, Labels, and Layout containers.
+-->
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<!--
+    VBox (Vertical Box): The root container that arranges its children in a single vertical column.
+    prefHeight/prefWidth: Sets the default size of the chat window.
+    spacing="10": Adds 10 pixels of vertical space between every element inside this VBox.
+    style: Applies inline CSS to set a soft light-grey background color (#F4F7F9).
+    stylesheets="@style.css": Links the external CSS file for advanced styling like rounded tabs.
+    fx:controller: Bridges this UI file to the ChatController Java class.
+-->
 <VBox prefHeight="550.0" prefWidth="750.0" spacing="10"
       style="-fx-background-color: #F4F7F9;"
       stylesheets="@style.css"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="at.ac.hcw.chat.client.ChatController">
 
+    <!-- Insets: Adds 15 pixels of empty space (padding) around the inner edges of the window -->
     <padding>
         <Insets bottom="15" left="15" right="15" top="15" />
     </padding>
 
-    <!-- Header Area -->
+    <!-- Header Section: Displays the greeting and the logout button -->
     <HBox alignment="CENTER_LEFT" spacing="10">
         <children>
+            <!-- fx:id="welcomeLabel": Matches the @FXML Label welcomeLabel variable in the Controller -->
             <Label fx:id="welcomeLabel" style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #546E7A;" text="Chat Room" />
+
+            <!-- Region with HBox.hgrow="ALWAYS": Acts as a flexible spacer that pushes the button to the far right -->
             <Region HBox.hgrow="ALWAYS" />
+
+            <!--
+                Button: Triggers the onDisconnectButtonClick() method in the Controller.
+                -fx-background-radius: 15: Creates the soft rounded corners.
+                -fx-cursor: hand: Changes the mouse pointer to a hand icon on hover.
+            -->
             <Button onAction="#onDisconnectButtonClick" style="-fx-background-color: #E57373; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand; -fx-font-weight: bold;" text="Disconnect" />
         </children>
     </HBox>
 
+    <!-- Middle Section: A horizontal container holding the Chat Tabs and the User List -->
     <HBox spacing="10" VBox.vgrow="ALWAYS">
         <children>
-            <!-- TabPane with CSS Styling -->
+            <!--
+                TabPane: The container for multiple chat sessions.
+                HBox.hgrow="ALWAYS": Ensures the chat area takes up all available horizontal space.
+                tabClosingPolicy="ALL_TABS": Allows users to close private chat tabs.
+            -->
             <TabPane fx:id="chatTabPane" tabClosingPolicy="ALL_TABS" HBox.hgrow="ALWAYS">
                 <tabs>
+                    <!-- The default tab for public messages. 'closable="false"' prevents users from deleting it -->
                     <Tab closable="false" text="General">
                         <content>
+                            <!-- TextArea: The scrollable text display where messages appear -->
                             <TextArea fx:id="chatArea" editable="false" wrapText="true" />
                         </content>
                     </Tab>
                 </tabs>
             </TabPane>
 
-            <!-- Sidebar: Online User List -->
+            <!-- Sidebar Section: Contains the title and the list of online users -->
             <VBox prefWidth="170.0" spacing="8">
                 <children>
                     <Label style="-fx-font-size: 12; -fx-text-fill: #90A4AE; -fx-font-weight: bold;" text="Online Users" />
+
+                    <!--
+                        ListView: Displays the list of strings (usernames) sent by the server.
+                        VBox.vgrow="ALWAYS": Stretches the list to fill the vertical height.
+                    -->
                     <ListView fx:id="userListView" style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #CFD8DC;" VBox.vgrow="ALWAYS" />
                 </children>
             </VBox>
         </children>
     </HBox>
 
-    <!-- Bottom: Input Field and Send Button -->
+    <!-- Bottom Section: Message Input field and Send button -->
     <HBox alignment="CENTER" spacing="10">
         <children>
+            <!--
+                TextField: Where the user types their message.
+                onAction="#onSendButtonClick": Allows sending the message by pressing the "Enter" key.
+                promptText: Ghost text shown when the field is empty.
+            -->
             <TextField fx:id="messageField" onAction="#onSendButtonClick" promptText="Type a message..."
                        style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 10; -fx-border-color: #CFD8DC;" HBox.hgrow="ALWAYS" />
+
+            <!-- Send Button: Specifically calls onSendButtonClick() when clicked -->
             <Button fx:id="sendButton" onAction="#onSendButtonClick" prefHeight="42.0" prefWidth="90.0"
                     style="-fx-background-color: #78909C; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;" text="Send" />
         </children>

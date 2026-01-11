@@ -16,7 +16,7 @@
         <TextField fx:id="ipField" text="127.0.0.1" style="-fx-background-radius: 15; -fx-padding: 8; -fx-border-color: #CFD8DC; -fx-border-radius: 15; -fx-background-insets: 0;"/>
 
         <Label text="Port" textFill="#78909C" />
-        <TextField fx:id="portField" text="12345" style="-fx-background-radius: 15; -fx-padding: 8; -fx-border-color: #CFD8DC; -fx-border-radius: 15; -fx-background-insets: 0;"/>
+        <TextField fx:id="portField" text="888" style="-fx-background-radius: 15; -fx-padding: 8; -fx-border-color: #CFD8DC; -fx-border-radius: 15; -fx-background-insets: 0;"/>
 
         <Label text="Your Name" textFill="#78909C" />
         <TextField fx:id="nameField" promptText="Enter name" style="-fx-background-radius: 15; -fx-padding: 8; -fx-border-color: #CFD8DC; -fx-border-radius: 15; -fx-background-insets: 0;"/>
