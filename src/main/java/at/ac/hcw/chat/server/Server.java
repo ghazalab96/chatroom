@@ -5,34 +5,35 @@ import java.net.*;
 import java.util.*;
 
 /**
- * Server Class for HCW Network Chat
- * Location: at.ac.hcw.chat.server
+ * Server Class for HCW Network Chat.
+ * This class handles incoming client connections and broadcasts messages.
  */
 public class Server {
+    // Port number for the server to listen on
     private static final int PORT = 12345;
 
-    // Thread-safe set to manage all connected clients
+    // Thread-safe set to manage all connected client output writers
     private static Set<PrintWriter> clientWriters = Collections.synchronizedSet(new HashSet<>());
 
     public static void main(String[] args) {
-        // Essential for Mac networking to prefer IPv4
+        // Essential for Mac/Linux networking to prioritize IPv4
         System.setProperty("java.net.preferIPv4Stack", "true");
 
-        System.out.println("--- Starting HCW Chat Server ---");
+        System.out.println("--- HCW Chat Server Starting ---");
 
-        // Step 1: Discover and display ONLY the primary network IP
+        // Display the primary local network IP address
         displayPrimaryIP();
 
-        // Step 2: Start the ServerSocket
+        // Establish the Server Socket
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server is now listening on port: " + PORT);
 
             while (true) {
-                // Wait for a new client to connect
+                // Wait for a new client to connect (Blocking call)
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected from: " + clientSocket.getInetAddress());
 
-                // Start a new thread for each client
+                // Create and start a dedicated thread for the new client
                 new ClientHandler(clientSocket).start();
             }
         } catch (IOException e) {
@@ -49,7 +50,7 @@ public class Server {
             while (interfaces.hasMoreElements()) {
                 NetworkInterface iface = interfaces.nextElement();
 
-                // Skip loopback, virtual and inactive interfaces
+                // Skip loopback, virtual, and inactive interfaces
                 if (!iface.isUp() || iface.isLoopback() || iface.isVirtual()) continue;
 
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
@@ -59,11 +60,11 @@ public class Server {
                     if (addr instanceof Inet4Address) {
                         String ip = addr.getHostAddress();
 
-                        // Filter for common local network ranges (Wi-Fi or LAN)
+                        // Filter for common private network ranges (Wi-Fi or LAN)
                         if (ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.")) {
                             System.out.println("Server IP: " + ip);
                             System.out.println("----------------------------");
-                            return; // Found the primary IP, stop searching
+                            return;
                         }
                     }
                 }
@@ -74,7 +75,8 @@ public class Server {
     }
 
     /**
-     * Inner class to handle individual client threads
+     * Inner class to handle individual client threads.
+     * This is where the server "listens" to the clients.
      */
     private static class ClientHandler extends Thread {
         private Socket socket;
@@ -92,19 +94,19 @@ public class Server {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
 
-                // Add this client to the broadcast list
+                // Register this client's writer to the global broadcast set
                 clientWriters.add(out);
 
                 String message;
-                // Keep reading messages until client disconnects
+                // Continuously read messages from the client until they disconnect
                 while ((message = in.readLine()) != null) {
-                    System.out.println("Broadcast: " + message);
+                    System.out.println("Broadcasting: " + message);
                     broadcast(message);
                 }
             } catch (IOException e) {
-                // Connection lost
+                // Expected when a client loses connection
             } finally {
-                // Remove client and clean up resources
+                // Cleanup: Remove client from set and close the socket
                 if (out != null) {
                     clientWriters.remove(out);
                 }
@@ -118,7 +120,7 @@ public class Server {
         }
 
         /**
-         * Sends a message to all connected clients
+         * Sends a message to all currently connected clients.
          */
         private void broadcast(String message) {
             synchronized (clientWriters) {
