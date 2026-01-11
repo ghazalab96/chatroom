@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Updated controller path to match the new package structure -->
+<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.chat.client.ChatController">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <!-- Top Section: Connection Settings (IP, Port, Username) -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <VBox spacing="5">
+            <Label text="Server IP:"/>
+            <TextField fx:id="ipField" text="127.0.0.1" prefWidth="120"/>
+        </VBox>
+
+        <VBox spacing="5">
+            <Label text="Port:"/>
+            <TextField fx:id="portField" text="12345" prefWidth="70"/>
+        </VBox>
+
+        <VBox spacing="5">
+            <Label text="Your Name:"/>
+            <TextField fx:id="nameField" text="Student" prefWidth="100"/>
+        </VBox>
+
+        <VBox spacing="5" alignment="BOTTOM_CENTER">
+            <HBox spacing="5">
+                <!-- Actions match the ChatController method names -->
+                <Button fx:id="connectButton" text="Connect" onAction="#onConnectButtonClick" prefWidth="80"/>
+                <Button fx:id="disconnectButton" text="Disconnect" onAction="#onDisconnectButtonClick" disable="true" prefWidth="90"/>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <!-- Middle Section: Message Display Area -->
+    <TextArea fx:id="chatArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true"/>
+
+    <!-- Bottom Section: Message Input and Send Button -->
+    <HBox spacing="10">
+        <!-- onAction on TextField allows sending by pressing "Enter" -->
+        <TextField fx:id="messageField" HBox.hgrow="ALWAYS" promptText="Type your message here..." onAction="#onSendButtonClick" disable="true"/>
+        <Button fx:id="sendButton" text="Send" onAction="#onSendButtonClick" disable="true" prefWidth="70"/>
+    </HBox>
+</VBox>
