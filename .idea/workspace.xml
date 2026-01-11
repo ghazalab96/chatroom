@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bd2779c8-4e9b-41dc-ad14-4fd547173e9b" name="Changes" comment="the MVP with private chat feature">
+    <list default="true" id="bd2779c8-4e9b-41dc-ad14-4fd547173e9b" name="Changes" comment="tab feature and notification red bullet">
+      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/client/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/client/ChatController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +31,17 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="chat_project" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="chat_project" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="chat_project" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="application" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -72,6 +85,7 @@
     "Gradle.chat_project [run].executor": "Run",
     "Gradle.chat_project copy [:at.ac.hcw.chat.server.Server.main()].executor": "Run",
     "Gradle.chat_project:server [:server:org.example.Server.main()].executor": "Run",
+    "Gradle.chat_project_MVP [:at.ac.hcw.chat.server.Server.main()].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -226,7 +240,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768133204683</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="tab feature and notification red bullet">
+      <option name="closed" value="true" />
+      <created>1768136914987</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1768136914987</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -234,7 +256,8 @@
     <MESSAGE value="test server" />
     <MESSAGE value="server edit" />
     <MESSAGE value="the MVP with private chat feature" />
-    <option name="LAST_COMMIT_MESSAGE" value="the MVP with private chat feature" />
+    <MESSAGE value="tab feature and notification red bullet" />
+    <option name="LAST_COMMIT_MESSAGE" value="tab feature and notification red bullet" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/chat_project$Server.ic" NAME="Server Coverage Results" MODIFIED="1767991554879" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">

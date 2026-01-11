@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.stage.Window;
+import javafx.stage.Window; // Crucial for finding the Error window stage
 import java.io.*;
 import java.net.Socket;
 import java.time.LocalTime;
@@ -16,15 +16,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
- * Controller with Silent Private Tab creation and Red Dot notifications.
+ * Final Controller with fix for Name Validation and Error-stage Navigation.
+ * All previous features (Tabs, Notifications, Timestamps) are preserved.
  */
 public class ChatController {
-    @FXML private TextField ipField, portField, nameField, messageField;
-    @FXML private Label statusLabel, welcomeLabel;
+    // UI Elements for Login and Error views
+    @FXML private TextField ipField, portField, nameField;
+    @FXML private Label statusLabel;
+
+    // UI Elements for Chat Room
     @FXML private TextArea chatArea;
+    @FXML private TextField messageField;
+    @FXML private Label welcomeLabel;
     @FXML private ListView<String> userListView;
     @FXML private TabPane chatTabPane;
 
+    // Networking Static Variables
     private static Socket socket;
     private static PrintWriter out;
     private static BufferedReader in;
@@ -39,19 +46,19 @@ public class ChatController {
     public void initialize() {
         activeController = this;
 
-        // Double-click to open and JUMP to private chat
+        // Double-click detection for Private Chat
         if (userListView != null) {
             userListView.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     String selectedUser = userListView.getSelectionModel().getSelectedItem();
                     if (selectedUser != null && !selectedUser.equals(userName)) {
-                        openPrivateTab(selectedUser, true); // true = switch to this tab
+                        openPrivateTab(selectedUser, true);
                     }
                 }
             });
         }
 
-        // Clear notification dot when user manually clicks a tab
+        // Auto-remove notification dot when a tab is selected
         if (chatTabPane != null) {
             chatTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
                 if (newTab != null) newTab.setGraphic(null);
@@ -65,22 +72,16 @@ public class ChatController {
         return dot;
     }
 
-    /**
-     * @param targetUser The name of the user.
-     * @param shouldFocus If true, the app will switch to this tab. If false, it stays silent.
-     */
     private void openPrivateTab(String targetUser, boolean shouldFocus) {
         Platform.runLater(() -> {
             if (activeController == null || activeController.chatTabPane == null) return;
-
             Tab targetTab = tabMap.get(targetUser);
 
-            // If tab doesn't exist, create it
             if (targetTab == null) {
                 TextArea newLog = new TextArea();
                 newLog.setEditable(false);
                 newLog.setWrapText(true);
-                newLog.setStyle("-fx-background-radius: 0 0 15 15; -fx-border-radius: 0 0 15 15;");
+                newLog.setStyle("-fx-background-radius: 0 0 15 15;");
 
                 targetTab = new Tab(targetUser, newLog);
                 targetTab.setClosable(true);
@@ -94,7 +95,6 @@ public class ChatController {
                 tabMap.put(targetUser, targetTab);
             }
 
-            // Only switch view if shouldFocus is true (e.g. from double-click)
             if (shouldFocus) {
                 activeController.chatTabPane.getSelectionModel().select(targetTab);
                 targetTab.setGraphic(null);
@@ -112,15 +112,10 @@ public class ChatController {
         }
         else if (msg.startsWith("[Private from ")) {
             String sender = msg.substring(14, msg.indexOf("]:"));
-
-            // 1. Ensure tab exists but DO NOT jump to it
             openPrivateTab(sender, false);
-
             Platform.runLater(() -> {
                 TextArea log = privateChatLog.get(sender);
                 if (log != null) log.appendText(getTimestamp() + msg + "\n");
-
-                // 2. Show red dot if we are NOT currently looking at that tab
                 Tab tab = tabMap.get(sender);
                 if (tab != null && !activeController.chatTabPane.getSelectionModel().getSelectedItem().equals(tab)) {
                     tab.setGraphic(createNotificationDot());
@@ -133,7 +128,6 @@ public class ChatController {
             Platform.runLater(() -> privateChatLog.get(target).appendText(getTimestamp() + msg + "\n"));
         }
         else {
-            // General Chat
             if (activeController.chatArea != null) {
                 activeController.chatArea.appendText(getTimestamp() + msg + "\n");
                 Tab generalTab = activeController.chatTabPane.getTabs().get(0);
@@ -148,17 +142,13 @@ public class ChatController {
     protected void onSendButtonClick() {
         String msg = messageField.getText().trim();
         if (msg.isEmpty() || out == null) return;
-
         Tab selectedTab = chatTabPane.getSelectionModel().getSelectedItem();
         String tabName = selectedTab.getText();
 
         if (tabName.equals("General")) out.println(msg);
         else out.println("@" + tabName + ": " + msg);
-
         messageField.clear();
     }
-
-    // --- Rest of the methods (listenToServer, getTimestamp, showErrorPopup, etc.) stay the same ---
 
     private String getTimestamp() {
         return "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) + "] ";
@@ -167,12 +157,14 @@ public class ChatController {
     private void listenToServer() {
         try {
             String line;
-            while (isRunning && (line = in.readLine()) != null) {
+            while (isRunning) {
+                line = in.readLine();
+                if (line == null) break;
                 final String msg = line;
                 Platform.runLater(() -> handleMessageRouting(msg));
             }
         } catch (IOException e) {
-            // Error handling
+            // Network error
         } finally {
             if (isRunning) Platform.runLater(this::showErrorPopup);
         }
@@ -180,8 +172,17 @@ public class ChatController {
 
     @FXML
     protected void onConnectButtonClick() {
-        userName = nameField.getText().trim();
-        if (userName.isEmpty()) return;
+        // Fix 1: Validate name before connecting
+        String inputName = nameField.getText().trim();
+        if (inputName.isEmpty()) {
+            if (statusLabel != null) {
+                statusLabel.setText("Please enter your name!");
+                statusLabel.setStyle("-fx-text-fill: #E57373;");
+            }
+            return;
+        }
+        userName = inputName;
+
         try {
             socket = new Socket(ipField.getText(), Integer.parseInt(portField.getText()));
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -190,7 +191,9 @@ public class ChatController {
             isRunning = true;
             new Thread(this::listenToServer).start();
             switchScene("/at/ac/hcw/chat/client/chat-view.fxml");
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            if (statusLabel != null) statusLabel.setText("Failed to connect!");
+        }
     }
 
     private void showErrorPopup() {
@@ -204,6 +207,7 @@ public class ChatController {
             Stage errorStage = new Stage();
             errorStage.setScene(new Scene(loader.load()));
             errorStage.setTitle("Connection Error");
+            errorStage.setResizable(false);
             errorStage.show();
         } catch (IOException e) { e.printStackTrace(); }
     }
@@ -212,11 +216,26 @@ public class ChatController {
     protected void onDisconnectButtonClick() {
         isRunning = false;
         try {
-            if (socket != null) socket.close();
+            if (socket != null && !socket.isClosed()) socket.close();
             privateChatLog.clear();
             tabMap.clear();
-            Stage currentStage = (Stage) (ipField != null ? ipField.getScene().getWindow() : chatTabPane.getScene().getWindow());
-            switchSceneOnStage(currentStage, "/at/ac/hcw/chat/client/login-view.fxml");
+
+            // Fix 2: Better stage detection for Error View compatibility
+            Stage currentStage = null;
+            if (chatTabPane != null) {
+                currentStage = (Stage) chatTabPane.getScene().getWindow();
+            } else if (ipField != null) {
+                currentStage = (Stage) ipField.getScene().getWindow();
+            } else {
+                // Find the Error window if other fields are null
+                List<Window> windows = Window.getWindows().filtered(Window::isFocused);
+                if (!windows.isEmpty()) currentStage = (Stage) windows.get(0);
+                else currentStage = (Stage) Window.getWindows().get(0);
+            }
+
+            if (currentStage != null) {
+                switchSceneOnStage(currentStage, "/at/ac/hcw/chat/client/login-view.fxml");
+            }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
@@ -224,16 +243,18 @@ public class ChatController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
         Parent root = loader.load();
         stage.setScene(new Scene(root));
-        if (path.contains("login")) stage.setTitle("HCW Login");
-        else {
+        if (path.contains("login")) {
+            stage.setTitle("HCW Login");
+        } else {
             stage.setTitle("HCW Room");
-            ((ChatController)loader.getController()).welcomeLabel.setText("User: " + userName);
+            ChatController next = loader.getController();
+            if (next.welcomeLabel != null) next.welcomeLabel.setText("User: " + userName);
         }
     }
 
     private void switchScene(String path) {
         try {
-            Stage stage = (Stage) (ipField != null ? ipField.getScene().getWindow() : chatTabPane.getScene().getWindow());
+            Stage stage = (Stage) (ipField != null ? ipField.getScene().getWindow() : statusLabel.getScene().getWindow());
             switchSceneOnStage(stage, path);
         } catch (Exception e) { e.printStackTrace(); }
     }
