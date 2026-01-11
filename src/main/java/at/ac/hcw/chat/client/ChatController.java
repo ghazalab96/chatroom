@@ -6,11 +6,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 
+/**
+ * Main Controller for the Chat Application.
+ * Package: at.ac.hcw.chat.client
+ */
 public class ChatController {
     // UI Elements for Login Window
     @FXML private TextField ipField, portField, nameField;
@@ -20,29 +25,42 @@ public class ChatController {
     @FXML private TextArea chatArea;
     @FXML private TextField messageField;
     @FXML private Label welcomeLabel;
+    @FXML private ListView<String> userListView;
 
-    // Networking (Static to persist across scene changes)
+    // Networking Static Variables (Static to survive scene changes)
     private static Socket socket;
     private static PrintWriter out;
     private static BufferedReader in;
     private static String userName;
     private static volatile boolean isRunning = false;
 
-    // Reference to the currently displayed controller instance
+    // Static reference to the currently active controller (for UI updates from the background thread)
     private static ChatController activeController;
 
     @FXML
     public void initialize() {
-        // Update the active controller reference whenever a new FXML is loaded
+        // Set this instance as the active controller whenever an FXML is loaded
         activeController = this;
+
+        // Auto-whisper: When a name in the list is clicked, prepare a private message
+        if (userListView != null) {
+            userListView.setOnMouseClicked(event -> {
+                String selectedUser = userListView.getSelectionModel().getSelectedItem();
+                if (selectedUser != null && !selectedUser.equals(userName)) {
+                    messageField.setText("@" + selectedUser + ": ");
+                    messageField.requestFocus();
+                    messageField.positionCaret(messageField.getText().length());
+                }
+            });
+        }
     }
 
     /**
-     * Logic for the "Connect" button in Login View
+     * Logic for the Connect button in the Login View.
      */
     @FXML
     protected void onConnectButtonClick() {
-        userName = nameField.getText();
+        userName = nameField.getText().trim();
         if (userName.isEmpty()) {
             statusLabel.setText("Please enter your name!");
             return;
@@ -52,16 +70,20 @@ public class ChatController {
             String ip = ipField.getText();
             int port = Integer.parseInt(portField.getText());
 
+            // 1. Establish connection
             socket = new Socket(ip, port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+            // 2. Protocol: Send the Username immediately as the first message
+            out.println(userName);
+
             isRunning = true;
 
-            // Start the message listener thread
+            // 3. Start the background thread to listen for server messages
             new Thread(this::listenToServer).start();
 
-            // Transition to the Chat Room scene
+            // 4. Switch to the main Chat Room scene
             switchScene("/at/ac/hcw/chat/client/chat-view.fxml");
 
         } catch (Exception e) {
@@ -70,8 +92,7 @@ public class ChatController {
     }
 
     /**
-     * This method runs in a separate thread on the Client.
-     * It listens for messages coming FROM the server.
+     * Background thread that processes all incoming messages from the server.
      */
     private void listenToServer() {
         try {
@@ -79,23 +100,37 @@ public class ChatController {
             while (isRunning) {
                 line = in.readLine();
 
-                // If server shuts down cleanly, it returns null
+                // If server goes down, readLine returns null
                 if (line == null) {
                     break;
                 }
 
-                String finalLine = line;
-                Platform.runLater(() -> {
-                    if (activeController != null && activeController.chatArea != null) {
-                        activeController.chatArea.appendText(finalLine + "\n");
-                    }
-                });
+                // Handle protocol for updating the Online User List
+                if (line.startsWith("USERLIST:")) {
+                    String listData = line.substring(9);
+                    String[] users = listData.split(",");
+
+                    Platform.runLater(() -> {
+                        if (activeController != null && activeController.userListView != null) {
+                            activeController.userListView.getItems().clear();
+                            activeController.userListView.getItems().addAll(users);
+                        }
+                    });
+                } else {
+                    // Handle standard chat messages (Public or Private)
+                    String finalLine = line;
+                    Platform.runLater(() -> {
+                        if (activeController != null && activeController.chatArea != null) {
+                            activeController.chatArea.appendText(finalLine + "\n");
+                        }
+                    });
+                }
             }
         } catch (IOException e) {
-            // This happens when server is forcefully stopped (Connection Reset)
-            System.out.println("Connection lost: " + e.getMessage());
+            // Log connection loss
+            System.out.println("Connection lost to server.");
         } finally {
-            // Trigger the popup only if the user didn't click "Disconnect" manually
+            // If the user didn't manually disconnect, show the Error Popup
             if (isRunning) {
                 Platform.runLater(this::showErrorPopup);
             }
@@ -103,27 +138,22 @@ public class ChatController {
     }
 
     /**
-     * Creates and displays a modal pop-up window when the server goes down
-     */
-
-    /**
-     * Closes the Chat Window and displays the Error Window
+     * Closes the Chat stage and opens the independent Error Window.
      */
     private void showErrorPopup() {
         try {
-            isRunning = false; // Stop the chat loop
+            isRunning = false;
             if (socket != null) socket.close();
 
-            // 1. Find the current Chat Stage and CLOSE it
+            // Find and close the Chat Stage
             if (activeController != null && activeController.chatArea != null) {
                 Stage chatStage = (Stage) activeController.chatArea.getScene().getWindow();
                 chatStage.close();
             }
 
-            // 2. Load and Show the Error Window as a new independent stage
+            // Open the independent Error Stage
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/at/ac/hcw/chat/client/error-view.fxml"));
             Parent root = loader.load();
-
             Stage errorStage = new Stage();
             errorStage.setTitle("Connection Error");
             errorStage.setScene(new Scene(root));
@@ -135,21 +165,20 @@ public class ChatController {
         }
     }
 
-
     /**
-     * Handles sending messages to the server
+     * Sends the text from the messageField to the server.
      */
     @FXML
     protected void onSendButtonClick() {
-        String msg = messageField.getText();
+        String msg = messageField.getText().trim();
         if (!msg.isEmpty() && out != null) {
-            out.println(userName + ": " + msg);
+            out.println(msg);
             messageField.clear();
         }
     }
 
     /**
-     * Handles the button click in both Chat and Error windows to return to Login
+     * Handles Disconnect requests from either the Chat Room or the Error Window.
      */
     @FXML
     protected void onDisconnectButtonClick() {
@@ -157,28 +186,28 @@ public class ChatController {
         try {
             if (socket != null) socket.close();
 
-            // Find the stage that triggered the event (either Chat or Error stage)
+            // Determine which stage called the disconnect
             Stage currentStage;
             if (ipField != null) {
-                // We are already in the Login or Error window (depending on fields)
                 currentStage = (Stage) ipField.getScene().getWindow();
             } else if (chatArea != null) {
-                // We are in the Chat window
                 currentStage = (Stage) chatArea.getScene().getWindow();
             } else {
-                // Fallback to find the focused window (the Error window)
-                currentStage = (Stage) Stage.getWindows().filtered(w -> w.isFocused()).get(0);
+                // Find the currently focused window (the Error popup)
+                List<Window> windows = Window.getWindows().filtered(Window::isFocused);
+                currentStage = windows.isEmpty() ? (Stage) Window.getWindows().get(0) : (Stage) windows.get(0);
             }
 
-            // Switch the current window back to the Login view
+            // Change the current window content back to login-view
             switchSceneOnStage(currentStage, "/at/ac/hcw/chat/client/login-view.fxml");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     /**
-     * Helper to switch scenes on a specific stage
+     * Helper method to switch FXML content on a specific Stage.
      */
     private void switchSceneOnStage(Stage stage, String fxmlPath) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -195,14 +224,13 @@ public class ChatController {
     }
 
     /**
-     * Standard scene switcher for the current window
+     * General scene switcher for the current window.
      */
     private void switchScene(String fxmlPath) {
         try {
             Stage stage;
             if (ipField != null) stage = (Stage) ipField.getScene().getWindow();
             else stage = (Stage) chatArea.getScene().getWindow();
-
             switchSceneOnStage(stage, fxmlPath);
         } catch (IOException e) {
             e.printStackTrace();
