@@ -11,6 +11,11 @@ repositories {
     mavenCentral()
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
 // Configuration for JavaFX
 javafx {
     version = "21" // Matches your OpenJDK 21

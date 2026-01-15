@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bd2779c8-4e9b-41dc-ad14-4fd547173e9b" name="Changes" comment="error page fixed, name error handling fixed">
+    <list default="true" id="bd2779c8-4e9b-41dc-ad14-4fd547173e9b" name="Changes" comment="code line comments have been added">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/at/ac/hcw/chat/client/avatar-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.14/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.14/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.14/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14/fileHashes/fileHashes.bin" afterDir="false" />
@@ -12,18 +13,22 @@
       <change beforePath="$PROJECT_DIR$/.gradle/8.14/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/at/ac/hcw/chat/client/ChatController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/at/ac/hcw/chat/client/ChatController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/at/ac/hcw/chat/server/Server$ClientHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/at/ac/hcw/chat/server/Server$ClientHandler.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/at/ac/hcw/chat/server/Server.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/at/ac/hcw/chat/server/Server.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/resources/main/at/ac/hcw/chat/client/chat-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/build/resources/main/at/ac/hcw/chat/client/chat-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/resources/main/at/ac/hcw/chat/client/error-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/build/resources/main/at/ac/hcw/chat/client/error-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/resources/main/at/ac/hcw/chat/client/login-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/build/resources/main/at/ac/hcw/chat/client/login-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/Server$ClientHandler.class.uniqueId1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/Server.class.uniqueId0" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/client/ChatApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/client/ChatApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/client/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/client/ChatController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/ac/hcw/chat/server/Server.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/at/ac/hcw/chat/client/chat-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/at/ac/hcw/chat/client/chat-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/at/ac/hcw/chat/client/error-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/at/ac/hcw/chat/client/error-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/at/ac/hcw/chat/client/login-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/at/ac/hcw/chat/client/login-view.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,29 +97,29 @@
     <option name="showMembers" value="true" />
     <option name="showVisibilityIcons" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.Server.executor": "Coverage",
-    "Gradle.Build chat_project.executor": "Run",
-    "Gradle.chat_project [:at.ac.hcw.chat.server.Server.main()].executor": "Run",
-    "Gradle.chat_project [run].executor": "Run",
-    "Gradle.chat_project copy [:at.ac.hcw.chat.server.Server.main()].executor": "Run",
-    "Gradle.chat_project:server [:server:org.example.Server.main()].executor": "Run",
-    "Gradle.chat_project_MVP [:at.ac.hcw.chat.server.Server.main()].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/ghazalarbabzadeh/Documents/FH/chat_project_MVP",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.sourceCode"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Application.Server.executor&quot;: &quot;Coverage&quot;,
+    &quot;Gradle.Build chat_project.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.chat_project [:at.ac.hcw.chat.server.Server.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.chat_project [run].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.chat_project copy [:at.ac.hcw.chat.server.Server.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.chat_project:server [:server:org.example.Server.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.chat_project_MVP [:at.ac.hcw.chat.server.Server.main()].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/ghazalarbabzadeh/Documents/FH/chat_project_MVP&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="chat_project [run]" type="GradleRunConfiguration" factoryName="Gradle" singleton="false" temporary="true">
       <ExternalSystemSettings>
@@ -280,7 +285,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768165781235</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="code line comments have been added">
+      <option name="closed" value="true" />
+      <created>1768168632478</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1768168632478</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -290,7 +303,8 @@
     <MESSAGE value="the MVP with private chat feature" />
     <MESSAGE value="tab feature and notification red bullet" />
     <MESSAGE value="error page fixed, name error handling fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="error page fixed, name error handling fixed" />
+    <MESSAGE value="code line comments have been added" />
+    <option name="LAST_COMMIT_MESSAGE" value="code line comments have been added" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/chat_project$Server.ic" NAME="Server Coverage Results" MODIFIED="1767991554879" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
